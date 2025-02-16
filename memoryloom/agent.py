@@ -43,7 +43,7 @@ class BaseAgent(ABC):
             return None
 
     @abstractmethod
-    def get_prompt(self,input: Message|str, history: list[Message]|str):
+    def get_prompt(self, input: Message|str, history: list[Message]|str):
         prompt = self.langfuse_client.get_prompt(self.prompt_id)
         compiled_prompt = prompt.compile(
             history = self.process_history(history),
@@ -92,7 +92,6 @@ class BaseAgent(ABC):
         self.__prompt_type__ = self.__prompt_type__ if prompt_type is None else prompt_type
         self.__prompt__ = self.__prompt__ if prompt is None else prompt
 
-
     def init_prompt(self):
         try:
             self.langfuse_client.get_prompt(self.prompt_id)
@@ -107,12 +106,70 @@ class BaseAgent(ABC):
     def set_response(self, response: BaseModel):
         self.response = response
 
+class RecordResponse(BaseModel):
+    think:str = Field(..., description="思考过程")
+    record:str = Field(..., description="记录内容")
+
+class RecordAgent(BaseAgent):
+    def __init__(self, ai_caller: AICaller, 
+                 prompt: str = None,
+                 prompt_type: Literal["text", "chat"] = None,
+                 prompt_id: str = None,):
+        super().__init__(ai_caller, prompt, prompt_type, prompt_id)
+        self.response = RecordResponse
+    def get_agent_name(self):
+        return "record"
+    
+    def cls_prompt(self):
+        self.__prompt_id__ = "record"
+        self.__prompt_type__ = "text"
+        self.__prompt__ = """请你根据如下的聊天记录：
+{{record}}
+站在 {{user}} 的视角，用一段文字总结出发生了什么事
+最后输出的格式请按照这个json schema输出：
+{{output_schema}}
+"""
+
+    def get_prompt(self, record: Message|str, user_name:str):
+        prompt = self.langfuse_client.get_prompt(self.prompt_id)
+        compiled_prompt = prompt.compile(
+            record = self.process_history(record),
+            user_name = user_name,
+            output_schema = self.response.model_json_schema()
+        )
+        return compiled_prompt
+
+class DayResponse(BaseModel):
+    think:str = Field(..., description="思考过程")
+    record:str = Field(..., description="记录内容")
+    long_memory:list[str] = Field(..., description="需要长期记录的内容")
+
 class DayAgent(BaseAgent):
+    def __init__(self, ai_caller: AICaller, 
+                 prompt: str = None,
+                 prompt_type: Literal["text", "chat"] = None,
+                 prompt_id: str = None,):
+        super().__init__(ai_caller, prompt, prompt_type, prompt_id)
+        self.response = DayResponse
     def get_agent_name(self):
         return "day"
     
     def cls_prompt(self):
         self.__prompt_id__ = "day"
         self.__prompt_type__ = "text"
-        self.__prompt__ = """
+        self.__prompt__ = """请你根据如下的事件记录：
+{{record}}
+用一段文字总结这一天的情况，
+对于需要长期记忆的内容，请另外列出需要记忆的文本，每一项单独列出
+最后输出的格式请按照这个json schema输出：
+{{output_schema}}
 """
+
+    def get_prompt(self, record: Message|str):
+        prompt = self.langfuse_client.get_prompt(self.prompt_id)
+        compiled_prompt = prompt.compile(
+            record = self.process_history(record),
+            output_schema = self.response.model_json_schema()
+        )
+        return compiled_prompt
+
