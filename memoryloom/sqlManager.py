@@ -24,38 +24,46 @@ class SQLiteManager:
         """初始化所有表"""
         self.create_table("users", {
             "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
-            "user_id": "INTEGER NOT NULL UNIQUE",
+            "user_id": "TEXT NOT NULL UNIQUE",
             "status": "TEXT NOT NULL DEFAULT '未激活'",
             "created_at": "DATETIME DEFAULT CURRENT_TIMESTAMP"
         })
         self.create_table("short_memory", {
             "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
-            "user_id": "INTEGER NOT NULL",
+            "user_id": "TEXT NOT NULL",
             "content": "TEXT NOT NULL",
             "timestamp": "DATETIME DEFAULT CURRENT_TIMESTAMP"
         })
         self.create_table("day_memory", {
             "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
-            "user_id": "INTEGER NOT NULL",
+            "user_id": "TEXT NOT NULL",
             "content": "TEXT NOT NULL",
             "date": "DATE"
         })
         self.create_table("week_memory", {
             "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
-            "user_id": "INTEGER NOT NULL",
+            "user_id": "TEXT NOT NULL",
             "content": "TEXT NOT NULL",
             "streamline": "TEXT NOT NULL",
-            "week": "TEXT"
+            "date": "TEXT NOT NULL"
+        })
+        self.create_table("month_memory", {
+            "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
+            "user_id": "TEXT NOT NULL",
+            "content": "TEXT NOT NULL",
+            "streamline": "TEXT NOT NULL",
+            "date": "TEXT NOT NULL"
         })
         self.create_table("year_memory", {
             "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
-            "user_id": "INTEGER NOT NULL",
+            "user_id": "TEXT NOT NULL",
             "content": "TEXT NOT NULL",
-            "year": "INTEGER"
+            "streamline": "TEXT NOT NULL",
+            "date": "INTEGER"
         })
         self.create_table("long_memory", {
             "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
-            "user_id": "INTEGER NOT NULL",
+            "user_id": "TEXT NOT NULL",
             "content": "TEXT NOT NULL",
             "timestamp": "DATETIME DEFAULT CURRENT_TIMESTAMP"
         })
