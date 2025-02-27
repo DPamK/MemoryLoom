@@ -9,29 +9,25 @@ class RecordRequest(BaseModel):
     context: str  # 上下文内容
     username: str
 
-class MemoryRequest(BaseModel):
+class LongTermMemoryRequest(BaseModel):
     memory_text: str
     username: str
 
 class QueryRequest(BaseModel):
     query: str
+    topk: int
     username: str
 
 class MemoryResponse(BaseModel):
-    results: List[str]  # 智能读取返回的多个结果
-
-class FullMemoryResponse(BaseModel):
-    day: List[str]
-    week: List[str]
-    month: List[str]
-    year: List[str]
-    long: List[str]
+    records: List[str]
+    longterm: List[str]
+    summary: list[str]
 
 class UserCreateRequest(BaseModel):
     username: str
 
 # ======== 接口定义 ========
-@app.post("/record/")
+@app.post("/record")
 async def record_context(request: RecordRequest):
     """
     记录接口 - 保存上下文信息
@@ -39,15 +35,15 @@ async def record_context(request: RecordRequest):
     # 实现存储上下文逻辑
     return {"status": "recorded"}
 
-@app.post("/memory/")
-async def store_memory(request: MemoryRequest):
+@app.post("/longterm")
+async def store_longterm_memory(request: LongTermMemoryRequest):
     """
     记忆接口 - 存储记忆文本
     """
     # 实现记忆存储逻辑
     return {"status": "stored"}
 
-@app.post("/retrieve/")
+@app.post("/retrieve")
 async def smart_retrieve(request: QueryRequest) -> MemoryResponse:
     """
     智能读取接口 - 根据query检索记忆
@@ -55,19 +51,6 @@ async def smart_retrieve(request: QueryRequest) -> MemoryResponse:
     # 实现智能检索逻辑
     return MemoryResponse(results=[])
 
-@app.get("/memories/{username}")
-async def get_all_memories(username: str) -> FullMemoryResponse:
-    """
-    全部读取接口 - 获取分类记忆数据
-    """
-    # 实现分类获取逻辑
-    return FullMemoryResponse(
-        day=[],
-        week=[],
-        month=[],
-        year=[],
-        long=[]
-    )
 
 @app.post("/users/")
 async def create_user(request: UserCreateRequest):
