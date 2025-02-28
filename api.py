@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List, Optional
 
+
 app = FastAPI()
 
 # ======== 数据模型定义 ========
@@ -44,9 +45,9 @@ async def store_longterm_memory(request: LongTermMemoryRequest):
     return {"status": "stored"}
 
 @app.post("/retrieve")
-async def smart_retrieve(request: QueryRequest) -> MemoryResponse:
+async def retrieve(request: QueryRequest) -> MemoryResponse:
     """
-    智能读取接口 - 根据query检索记忆
+    检索接口 - 根据query检索记忆相关信息
     """
     # 实现智能检索逻辑
     return MemoryResponse(results=[])
